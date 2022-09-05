@@ -1,13 +1,14 @@
 
 @propertyWrapper
-public class StringToInt<Wrapped>: Converter where Wrapped: WrappedFull, Wrapped.In == Int {
-    public typealias In = String
-    public typealias Out = Int
+public struct StringToInt<In, Wrapped>: Converter where In: SchemaValue, In.Value == String, Wrapped: WrappedFull, Wrapped.In: SchemaValue, Wrapped.In.Value == Int {
+    public typealias Out = Wrapped.In
     
     public var wrappedValue: Wrapped
+    public let nilPolicy: NilValidationPolicy
     
-    public init(wrappedValue: Wrapped) {
+    internal init(wrappedValue: Wrapped, nilPolicy: NilValidationPolicy) {
         self.wrappedValue = wrappedValue
+        self.nilPolicy = nilPolicy
     }
     
     public func convert(_ value: String) throws -> Int {
@@ -16,5 +17,17 @@ public class StringToInt<Wrapped>: Converter where Wrapped: WrappedFull, Wrapped
     
     public func convert(_ value: Int) throws -> String {
         String(value)
+    }
+}
+
+extension StringToInt where In == String, Out == Int {
+    public init(wrappedValue: Wrapped) {
+        self.init(wrappedValue: wrappedValue, nilPolicy: .fail)
+    }
+}
+
+extension StringToInt where In == String?, Out == Int? {
+    public init(wrappedValue: Wrapped) {
+        self.init(wrappedValue: wrappedValue, nilPolicy: .succeed)
     }
 }

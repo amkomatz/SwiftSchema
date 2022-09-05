@@ -13,7 +13,7 @@ public class Key<In, Wrapped>: Keyed where In: Codable, Wrapped: WrappedFull, Wr
     public var wrappedValue: Wrapped
     public let key: String
     
-    public init(wrappedValue: Wrapped, _ key: String) {
+    public init(wrappedValue: Wrapped, type: In.Type = In.self, _ key: String) {
         self.wrappedValue = wrappedValue
         self.key = key
     }

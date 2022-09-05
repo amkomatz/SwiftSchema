@@ -1,17 +1,73 @@
 
+enum PlaceholderError: Error {
+    case optionalNotAllowed
+}
+
 public protocol WrappedIn {
-    associatedtype In
+    associatedtype In: SchemaValue
     
     func getValue() throws -> In
     mutating func setValue(_ value: In) throws
 }
 
 public protocol WrappedOut {
-    associatedtype Out
+    associatedtype Out: SchemaValue
 }
 
 public protocol WrappedFull: WrappedIn, WrappedOut {
     
+}
+
+public enum SchemaValueChoice<T> {
+    case nonOptional(T)
+    case optional(T?)
+    
+    var value: T? {
+        switch self {
+        case .nonOptional(let value):
+            return value
+        case .optional(let value):
+            return value
+        }
+    }
+}
+
+public protocol SchemaValue: WrappedFull where In == Self, Out == Self {
+    associatedtype Value
+    
+    var schemaValue: SchemaValueChoice<Value> { get }
+    
+    init(schemaValue: SchemaValueChoice<Value>) throws
+}
+
+extension SchemaValue where Value == Self {
+    public var schemaValue: SchemaValueChoice<Self> {
+        .nonOptional(self)
+    }
+    
+    public init(schemaValue: SchemaValueChoice<Self>) throws {
+        guard let value = schemaValue.value else {
+            throw PlaceholderError.optionalNotAllowed
+        }
+        self = value
+    }
+}
+
+extension String: SchemaValue {}
+extension Int: SchemaValue {}
+extension Float: SchemaValue {}
+extension Double: SchemaValue {}
+
+extension Optional: SchemaValue where Wrapped: SchemaValue, Wrapped.Value == Wrapped {
+    public typealias Value = Wrapped
+    
+    public var schemaValue: SchemaValueChoice<Wrapped.Value> {
+        .optional(self)
+    }
+    
+    public init(schemaValue: SchemaValueChoice<Wrapped>) throws {
+        self = schemaValue.value
+    }
 }
 
 // MARK: - Primitive Conformance
@@ -68,7 +124,7 @@ extension Double: WrappedFull {
     }
 }
 
-extension Optional: WrappedIn, WrappedOut, WrappedFull where Wrapped: WrappedFull {
+extension Optional: WrappedIn, WrappedOut, WrappedFull where Wrapped: WrappedFull, Wrapped: SchemaValue, Wrapped.Value == Wrapped {
     public typealias In = Self
     public typealias Out = Self
     
