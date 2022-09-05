@@ -1,7 +1,7 @@
 import Foundation
 
 @propertyWrapper
-public struct Round<T, Wrapped>: Modifier where T: SchemaValue, T.Value: Roundable, Wrapped: WrappedFull, Wrapped.In == T {
+public struct Round<T, Wrapped>: Modifier where T: SchemaValue, T.Value: FloatingPoint, Wrapped: WrappedFull, Wrapped.In == T {
     public typealias In = T
     public typealias Out = T
     
@@ -14,7 +14,7 @@ public struct Round<T, Wrapped>: Modifier where T: SchemaValue, T.Value: Roundab
     }
     
     public func modify(_ value: T.Value) throws -> T.Value {
-        value.round()
+        round(value)
     }
 }
 
@@ -27,27 +27,5 @@ extension Round where T == T.Value {
 extension Round where T: AnyOptional {
     public init(wrappedValue: Wrapped) {
         self.init(wrappedValue: wrappedValue, nilPolicy: .succeed)
-    }
-}
-
-public protocol Roundable {
-    func round() -> Self
-}
-
-extension Float: Roundable {
-    public func round() -> Float {
-        Darwin.round(self)
-    }
-}
-
-extension Double: Roundable {
-    public func round() -> Double {
-        Darwin.round(self)
-    }
-}
-
-extension Optional: Roundable where Wrapped: Roundable {
-    public func round() -> Self {
-        self?.round()
     }
 }

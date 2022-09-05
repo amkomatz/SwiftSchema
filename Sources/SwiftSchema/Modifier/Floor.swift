@@ -1,7 +1,7 @@
 import Foundation
 
 @propertyWrapper
-public struct Floor<T, Wrapped>: Modifier where T: SchemaValue, T.Value: Floorable, Wrapped: WrappedFull, Wrapped.In == T {
+public struct Floor<T, Wrapped>: Modifier where T: SchemaValue, T.Value: FloatingPoint, Wrapped: WrappedFull, Wrapped.In == T {
     public typealias In = T
     public typealias Out = T
     
@@ -14,7 +14,7 @@ public struct Floor<T, Wrapped>: Modifier where T: SchemaValue, T.Value: Floorab
     }
     
     public func modify(_ value: T.Value) throws -> T.Value {
-        value.floor()
+        floor(value)
     }
 }
 
@@ -27,21 +27,5 @@ extension Floor where T == T.Value {
 extension Floor where T: AnyOptional {
     public init(wrappedValue: Wrapped) {
         self.init(wrappedValue: wrappedValue, nilPolicy: .succeed)
-    }
-}
-
-public protocol Floorable {
-    func floor() -> Self
-}
-
-extension Float: Floorable {
-    public func floor() -> Float {
-        Darwin.floor(self)
-    }
-}
-
-extension Double: Floorable {
-    public func floor() -> Double {
-        Darwin.floor(self)
     }
 }
