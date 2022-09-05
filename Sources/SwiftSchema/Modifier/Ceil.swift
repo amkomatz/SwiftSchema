@@ -1,18 +1,32 @@
 import Foundation
 
 @propertyWrapper
-public class Ceil<T, Wrapped>: Modifier where T: Ceilable, Wrapped: WrappedFull, Wrapped.In == T {
+public struct Ceil<T, Wrapped>: Modifier where T: SchemaValue, T.Value: Ceilable, Wrapped: WrappedFull, Wrapped.In == T {
     public typealias In = T
     public typealias Out = T
     
     public var wrappedValue: Wrapped
+    public let nilPolicy: NilValidationPolicy
     
-    public init(wrappedValue: Wrapped) {
+    internal init(wrappedValue: Wrapped, nilPolicy: NilValidationPolicy) {
         self.wrappedValue = wrappedValue
+        self.nilPolicy = nilPolicy
     }
     
-    public func modify(_ value: T) throws -> T {
+    public func modify(_ value: T.Value) throws -> T.Value {
         value.ceil()
+    }
+}
+
+extension Ceil where T == T.Value {
+    public init(wrappedValue: Wrapped) {
+        self.init(wrappedValue: wrappedValue, nilPolicy: .fail)
+    }
+}
+
+extension Ceil where T: AnyOptional {
+    public init(wrappedValue: Wrapped) {
+        self.init(wrappedValue: wrappedValue, nilPolicy: .succeed)
     }
 }
 

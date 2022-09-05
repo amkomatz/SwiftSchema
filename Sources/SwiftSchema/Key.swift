@@ -36,7 +36,7 @@ public class Key<In, Wrapped>: Keyed where In: Codable, Wrapped: WrappedFull, Wr
     }
 }
 
-private protocol _Optional {
+internal protocol _Optional {
     static func decode(from container: KeyedDecodingContainer<String>, key: String) throws -> Self
 }
 
@@ -45,3 +45,9 @@ extension Optional: _Optional where Wrapped: Decodable {
         try container.decodeIfPresent(Wrapped.self, forKey: key)
     }
 }
+
+public protocol AnyOptional {
+    
+}
+
+extension Optional: AnyOptional {}
