@@ -1,33 +1,32 @@
+import Foundation
 
 @propertyWrapper
-public struct LessThanOrEqualTo<T, Wrapped>: Validator where T: SchemaValue, T.Value: Comparable, Wrapped: WrappedFull, Wrapped.In == T {
+public struct ClampMax<T, Wrapped>: Modifier where T: SchemaValue, T.Value: Comparable, Wrapped: WrappedFull, Wrapped.In == T {
     public typealias In = T
     public typealias Out = T
     
     public var wrappedValue: Wrapped
-    private let max: T.Value
     public let nilPolicy: NilValidationPolicy
+    private let max: T.Value
     
     internal init(wrappedValue: Wrapped, nilPolicy: NilValidationPolicy, max: T.Value) {
         self.wrappedValue = wrappedValue
-        self.max = max
         self.nilPolicy = nilPolicy
+        self.max = max
     }
     
-    public func validate(_ value: T.Value) throws {
-        if !(value <= max) {
-            throw ValidationError(message: "must be less than or equal to \(max).")
-        }
+    public func modify(_ value: T.Value) throws -> T.Value {
+        value > max ? max : value
     }
 }
 
-extension LessThanOrEqualTo where T == T.Value {
+extension ClampMax where T == T.Value {
     public init(wrappedValue: Wrapped, _ max: T.Value) {
         self.init(wrappedValue: wrappedValue, nilPolicy: .fail, max: max)
     }
 }
 
-extension LessThanOrEqualTo where T: AnyOptional {
+extension ClampMax where T: AnyOptional {
     public init(wrappedValue: Wrapped, _ max: T.Value) {
         self.init(wrappedValue: wrappedValue, nilPolicy: .succeed, max: max)
     }

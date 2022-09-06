@@ -57,6 +57,7 @@ extension String: SchemaValue {}
 extension Int: SchemaValue {}
 extension Float: SchemaValue {}
 extension Double: SchemaValue {}
+extension Array: SchemaValue where Element: SchemaValue, Element.Value == Element {}
 
 extension Optional: SchemaValue where Wrapped: SchemaValue, Wrapped.Value == Wrapped {
     public typealias Value = Wrapped
@@ -125,6 +126,19 @@ extension Double: WrappedFull {
 }
 
 extension Optional: WrappedIn, WrappedOut, WrappedFull where Wrapped: WrappedFull, Wrapped: SchemaValue, Wrapped.Value == Wrapped {
+    public typealias In = Self
+    public typealias Out = Self
+    
+    public func getValue() throws -> Self {
+        self
+    }
+    
+    public mutating func setValue(_ value: Self) throws {
+        self = value
+    }
+}
+
+extension Array: WrappedIn, WrappedOut, WrappedFull where Element: WrappedFull, Element: SchemaValue, Element.Value == Element {
     public typealias In = Self
     public typealias Out = Self
     

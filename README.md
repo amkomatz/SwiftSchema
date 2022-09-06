@@ -3,4 +3,7 @@
 A description of this package.
 
 TODO:
-- Clamp
+- MinLength
+- ClampLengthMin
+- ClampLengthMax
+- NotEmpty
