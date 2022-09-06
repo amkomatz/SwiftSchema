@@ -33,7 +33,7 @@ final class MaxLengthTests: SwiftSchemaTest {
         expect(decoded.field1) == "aaaaa"
     }
     
-    func test_decode_requiredString_greaterThanMaxLength_throwsCorrect() throws {
+    func test_decode_requiredString_greaterThanMaxLength_throws() throws {
         let json = #"{"field_1":"aaaaaa"}"#
 
         expect(try self.decode(StringRequired.self, from: json)).to(throwError(ValidationError(message: "must contain less than 5 elements.")))
@@ -101,7 +101,7 @@ final class MaxLengthTests: SwiftSchemaTest {
         expect(decoded.field1) == [1, 2, 3, 4, 5]
     }
     
-    func test_decode_requiredArray_greaterThanMaxLength_throwsCorrect() throws {
+    func test_decode_requiredArray_greaterThanMaxLength_throws() throws {
         let json = #"{"field_1":[1, 2, 3, 4, 5, 6]}"#
 
         expect(try self.decode(ArrayRequired.self, from: json)).to(throwError(ValidationError(message: "must contain less than 5 elements.")))

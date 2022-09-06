@@ -33,7 +33,7 @@ final class MinLengthTests: SwiftSchemaTest {
         expect(decoded.field1) == "aaaaa"
     }
     
-    func test_decode_requiredString_lessThanMinLength_throwsCorrect() throws {
+    func test_decode_requiredString_lessThanMinLength_throws() throws {
         let json = #"{"field_1":"aaaa"}"#
 
         expect(try self.decode(StringRequired.self, from: json)).to(throwError(ValidationError(message: "must contain at least 5 elements.")))
@@ -53,7 +53,7 @@ final class MinLengthTests: SwiftSchemaTest {
         expect(decoded.field1) == "aaaaa"
     }
     
-    func test_decode_optionalString_lessThanMinLength_throwsCorrect() throws {
+    func test_decode_optionalString_lessThanMinLength_throws() throws {
         let json = #"{"field_1":"aaaa"}"#
 
         expect(try self.decode(StringNotRequired.self, from: json)).to(throwError(ValidationError(message: "must contain at least 5 elements.")))
@@ -101,7 +101,7 @@ final class MinLengthTests: SwiftSchemaTest {
         expect(decoded.field1) == [1, 2, 3, 4, 5]
     }
     
-    func test_decode_requiredArray_lessThanMinLength_throwsCorrect() throws {
+    func test_decode_requiredArray_lessThanMinLength_throws() throws {
         let json = #"{"field_1":[1, 2, 3, 4]}"#
 
         expect(try self.decode(ArrayRequired.self, from: json)).to(throwError(ValidationError(message: "must contain at least 5 elements.")))

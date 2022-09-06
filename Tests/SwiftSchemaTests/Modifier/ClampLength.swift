@@ -33,7 +33,7 @@ final class ClampLengthTests: SwiftSchemaTest {
         expect(decoded.field1) == "aaaaa"
     }
     
-    func test_decode_requiredString_lessThanMinLength_throwsCorrect() throws {
+    func test_decode_requiredString_lessThanMinLength_throws() throws {
         let json = #"{"field_1":"aaaa"}"#
 
         let decoded = try decode(StringRequired.self, from: json)
@@ -54,7 +54,7 @@ final class ClampLengthTests: SwiftSchemaTest {
         expect(decoded.field1) == "aaaaa"
     }
     
-    func test_decode_optionalString_lessThanMinLength_throwsCorrect() throws {
+    func test_decode_optionalString_lessThanMinLength_throws() throws {
         let json = #"{"field_1":"aaaa"}"#
 
         let decoded = try decode(StringNotRequired.self, from: json)
@@ -103,7 +103,7 @@ final class ClampLengthTests: SwiftSchemaTest {
         expect(decoded.field1) == [1, 2, 3, 4, 5]
     }
     
-    func test_decode_requiredArray_lessThanMinLength_throwsCorrect() throws {
+    func test_decode_requiredArray_lessThanMinLength_throws() throws {
         let json = #"{"field_1":[1, 2, 3, 4]}"#
 
         let decoded = try decode(ArrayRequired.self, from: json)
