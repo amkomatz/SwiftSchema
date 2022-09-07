@@ -18,5 +18,3 @@ Modifiers:
 - Trim
 
 Validators:
-- Whitelist
-- Blacklist
