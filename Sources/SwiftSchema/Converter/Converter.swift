@@ -1,38 +1,22 @@
 
-public protocol Converter: WrappedFull {
-    associatedtype Wrapped where Wrapped: WrappedFull, Wrapped.In == Out
+public protocol Converter {
+    associatedtype In
+    associatedtype Out
     
-    var wrappedValue: Wrapped { get set }
-    var nilPolicy: NilValidationPolicy { get }
+    init()
     
-    func convert(_ value: In.Value) throws -> Out.Value
-    func convert(_ value: Out.Value) throws -> In.Value
+    func convert(_ value: In?) throws -> Out?
+    func convert(_ value: Out?) throws -> In?
 }
 
-extension Converter {
-    public func getValue() throws -> In {
-        if let value = try wrappedValue.getValue().schemaValue.value {
-            return try .init(schemaValue: .nonOptional(convert(value)))
-        } else {
-            switch nilPolicy {
-            case .succeed:
-                return try In(schemaValue: .optional(nil))
-            case .fail:
-                throw PlaceholderError.optionalNotAllowed
-            }
-        }
-    }
+public protocol PartialConverter: Converter {
+    associatedtype Reverse: Converter where Reverse.In == Out, Reverse.Out == In
     
-    public mutating func setValue(_ value: In) throws {
-        if let value = value.schemaValue.value {
-            try wrappedValue.setValue(.init(schemaValue: .nonOptional(convert(value))))
-        } else {
-            switch nilPolicy {
-            case .succeed:
-                try wrappedValue.setValue(.init(schemaValue: .optional(nil)))
-            case .fail:
-                throw PlaceholderError.optionalNotAllowed
-            }
-        }
+    init()
+}
+
+extension PartialConverter {
+    public func convert(_ value: Out?) throws -> In? {
+        try Reverse().convert(value)
     }
 }

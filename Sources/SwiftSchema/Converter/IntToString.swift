@@ -1,40 +1,33 @@
 
-@propertyWrapper
-public struct IntToString<In, Wrapped>: Converter where In: SchemaValue, In.Value == Int, Wrapped: WrappedFull, Wrapped.In: SchemaValue, Wrapped.In.Value == String {
-    public typealias Out = Wrapped.In
+public typealias IntToString<In, Wrapped> = Convert<In, IntToStringConverter, Wrapped> where
+    In: SchemaValue & WrappedFull,
+    In.Value == Int,
+    Wrapped: WrappedFull,
+    Wrapped.In.Value == String
+
+public struct IntToStringConverter: PartialConverter {
+    public typealias In = Int
+    public typealias Out = String
+    public typealias Reverse = StringToIntConverter
     
-    public var wrappedValue: Wrapped
-    public let nilPolicy: NilValidationPolicy
+    public init() {}
     
-    internal init(wrappedValue: Wrapped, nilPolicy: NilValidationPolicy) {
-        self.wrappedValue = wrappedValue
-        self.nilPolicy = nilPolicy
-    }
-    
-    public func convert(_ value: Int) throws -> String {
-        String(value)
-    }
-    
-    public func convert(_ value: String) throws -> Int {
-        guard let int = Int(value) else {
-            throw Exception.invalidIntegerString
+    public func convert(_ value: Int?) throws -> String? {
+        if let value {
+            return String(value)
         }
-        return int
-    }
-    
-    public enum Exception: Error {
-        case invalidIntegerString
+        return nil
     }
 }
 
-extension IntToString where In == Int, Out == String {
+extension IntToString where In == Int, Out == String, Converter == IntToStringConverter {
     public init(wrappedValue: Wrapped) {
-        self.init(wrappedValue: wrappedValue, nilPolicy: .fail)
+        self.init(wrappedValue: wrappedValue, nilPolicy: .fail, converter: IntToStringConverter())
     }
 }
 
-extension IntToString where In == Int?, Out == String? {
+extension IntToString where In == Int?, Out == String?, Converter == IntToStringConverter {
     public init(wrappedValue: Wrapped) {
-        self.init(wrappedValue: wrappedValue, nilPolicy: .succeed)
+        self.init(wrappedValue: wrappedValue, nilPolicy: .succeed, converter: IntToStringConverter())
     }
 }

@@ -3,48 +3,35 @@ import Nimble
 
 @testable import SwiftSchema
 
-final class IntToStringTests: SwiftSchemaTest {
+final class StringToIntTests: SwiftSchemaTest {
     struct Required: KeyCodable {
         @Key("field_1")
-        @IntToString
-        var field1: String = ""
+        @StringToInt
+        var field1: Int = 0
     }
     
     struct NotRequired: KeyCodable {
         @Key("field_1")
-        @IntToString
-        var field1: String? = nil
+        @StringToInt
+        var field1: Int? = nil
     }
     
-    func test_decode_required_intInJson_succeeds() throws {
-        let json = #"{"field_1":1}"#
+    func test_decode_required_stringInJson_succeeds() throws {
+        let json = #"{"field_1":"1"}"#
 
         let decoded = try decode(Required.self, from: json)
-        expect(decoded.field1) == "1"
+        expect(decoded.field1) == 1
     }
     
-    func test_decode_required_floatInJson_fails() throws {
-        let json = #"{"field_1":1.5}"#
-
-        expect(try self.decode(Required.self, from: json)).to(throwError(
-            DecodingError.dataCorrupted(
-                DecodingError.Context(
-                    codingPath: ["field_1"],
-                    debugDescription: "Parsed JSON number <1.5> does not fit in Int."
-                )
-            )
-        ))
-    }
-    
-    func test_decode_required_stringInJson_fails() throws {
-        let json = #"{"field_1":"1"}"#
+    func test_decode_required_intInJson_fails() throws {
+        let json = #"{"field_1":1}"#
 
         expect(try self.decode(Required.self, from: json)).to(throwError(
             DecodingError.typeMismatch(
-                Int.self,
+                String.self,
                 DecodingError.Context(
                     codingPath: ["field_1"],
-                    debugDescription: "Expected to decode Int but found a string/data instead."
+                    debugDescription: "Expected to decode String but found a number instead."
                 )
             )
         ))
@@ -55,10 +42,10 @@ final class IntToStringTests: SwiftSchemaTest {
 
         expect(try self.decode(Required.self, from: json)).to(throwError(
             DecodingError.valueNotFound(
-                Int.self,
+                String.self,
                 DecodingError.Context(
                     codingPath: ["field_1"],
-                    debugDescription: "Expected Int but found null value instead."
+                    debugDescription: "Expected String but found null value instead."
                 )
             )
         ))
@@ -79,10 +66,10 @@ final class IntToStringTests: SwiftSchemaTest {
     }
     
     func test_decode_optional_intInJson_succeeds() throws {
-        let json = #"{"field_1":1}"#
+        let json = #"{"field_1":"1"}"#
 
         let decoded = try decode(NotRequired.self, from: json)
-        expect(decoded.field1) == "1"
+        expect(decoded.field1) == 1
 
         let encoded = try encode(decoded)
         expect(encoded) == json
@@ -109,21 +96,9 @@ final class IntToStringTests: SwiftSchemaTest {
     }
     
     func test_encode_required_validIntString_jsonIsCorrect() throws {
-        let decoded = Required(field1: "1")
+        let decoded = Required(field1: 1)
 
         let encoded = try encode(decoded)
-        expect(encoded) == #"{"field_1":1}"#
-    }
-    
-    func test_encode_required_validFloatString_throws() throws {
-        let decoded = Required(field1: "1.5")
-
-        expect(try self.encode(decoded)).to(throwError(ValidationError(message: "unable to convert String to Int.")))
-    }
-    
-    func test_encode_required_nonIntString_throws() throws {
-        let decoded = Required(field1: "Hello!")
-
-        expect(try self.encode(decoded)).to(throwError(ValidationError(message: "unable to convert String to Int.")))
+        expect(encoded) == #"{"field_1":"1"}"#
     }
 }

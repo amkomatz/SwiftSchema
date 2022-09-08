@@ -9,10 +9,6 @@ Converters:
 - FloatToInt
 - IntToDouble
 - DoubleToInt
-- StringToFloat
-- FloatToString
-- StringToDouble
-- DoubleToString
 
 Modifiers:
 - Trim
